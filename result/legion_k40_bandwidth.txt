@@ -1,0 +1,14 @@
+Host to Device Bandwidth, 1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  335544324711.3
+
+Device to Host Bandwidth,        1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth( MB/s)
+  335544323292.2
+
+Device to Device Bandwidth, 1 Device(s)
+  PINN      ED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  33554432        183436.9

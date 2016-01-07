@@ -1,0 +1,17 @@
+Device 0: Tesla K20m
+Quick Mode
+
+Host to Device Bandwidth, 1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  335544326106.5
+
+Device to Host Bandwidth, 1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  335544326519.7
+
+Device to Device Bandwidth, 1 Device(s)
+  PINNED Me      mory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  335544321        45494.8

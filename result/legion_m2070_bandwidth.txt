@@ -1,0 +1,17 @@
+Device 0: Tesla M2070
+Quick Mode
+
+Host to Device Bandwidth, 1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)  
+  335544325855.1
+
+Device to Host Bandwidth, 1 Device(s)
+  PINNED Memo     ry Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  335544326195.       4
+
+Device to Device Bandwidth, 1 Device(s)
+  PINNED Memory Transfers
+Transfer Size (Bytes)Bandwidth(MB/s)
+  33554432105108.6
