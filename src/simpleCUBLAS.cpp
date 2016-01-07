@@ -10,11 +10,19 @@
 #include <cublas_v2.h>
 #include <helper_cuda.h>
 
+//#define DOUBLE__PRECISION
+#ifdef DOUBLE__PRECISION
+    #define real double
+    #define GEMM cublasDgemm
+#else
+    #define real float
+    #define GEMM cublasSgemm
+#endif
 
 #undef VERIFY 
 /* Host implementation of a simple version of sgemm */
-static void simple_sgemm(int n, float alpha, const float *A, const float *B,
-    float beta, float *C)
+static void simple_sgemm(int n, real alpha, const real *A, const real *B,
+    real beta, real *C)
 {
   int i;
   int j;
@@ -24,7 +32,7 @@ static void simple_sgemm(int n, float alpha, const float *A, const float *B,
   {
     for (j = 0; j < n; ++j)
     {
-      float prod = 0;
+      real prod = 0;
 
       for (k = 0; k < n; ++k)
       {
@@ -37,12 +45,12 @@ static void simple_sgemm(int n, float alpha, const float *A, const float *B,
 }
 
 
-int gpu_gemm(const float *h_A, const float *h_B, float *h_C, const float alpha,
-    const float beta, const int N)
+int gpu_gemm(const real *h_A, const real *h_B, real *h_C, const real alpha,
+    const real beta, const int N)
 {
-  float *d_A = 0;
-  float *d_B = 0;
-  float *d_C = 0;
+  real *d_A = 0;
+  real *d_B = 0;
+  real *d_C = 0;
   int n2 = N * N;
 
   cublasStatus_t status;
@@ -78,7 +86,7 @@ int gpu_gemm(const float *h_A, const float *h_B, float *h_C, const float alpha,
   status = cublasSetVector(n2, sizeof(h_C[0]), h_C, 1, d_C, 1);
 
   /* Performs operation using cublas */
-  status = cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha, d_A, N, d_B, N, &beta, d_C, N);
+  status = GEMM(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha, d_A, N, d_B, N, &beta, d_C, N);
   if (status != CUBLAS_STATUS_SUCCESS)
   {
     fprintf(stderr, "!!!! kernel execution error.\n");
@@ -121,32 +129,32 @@ int gpu_gemm(const float *h_A, const float *h_B, float *h_C, const float alpha,
 
 static int benchmark_blas(const int N)
 {
-  float *h_A;
-  float *h_B;
-  float *h_C;
-  float *h_C_ref;
-  float alpha = 1.0f;
-  float beta = 0.0f;
+  real *h_A;
+  real *h_B;
+  real *h_C;
+  real *h_C_ref;
+  real alpha = 1.0f;
+  real beta = 0.0f;
   int n2 = N * N;
   int i;
-  float error_norm;
-  float ref_norm;
-  float diff;
+  real error_norm;
+  real ref_norm;
+  real diff;
 
 
 
   /* Allocate host memory for the matrices */
-  h_A = (float *)malloc(n2 * sizeof(h_A[0]));
-  h_B = (float *)malloc(n2 * sizeof(h_B[0]));
-  h_C = (float *)malloc(n2 * sizeof(h_C[0]));
-  h_C_ref = (float *)malloc(n2 * sizeof(h_C[0]));
+  h_A = (real *)malloc(n2 * sizeof(h_A[0]));
+  h_B = (real *)malloc(n2 * sizeof(h_B[0]));
+  h_C = (real *)malloc(n2 * sizeof(h_C[0]));
+  h_C_ref = (real *)malloc(n2 * sizeof(h_C[0]));
 
   /* Fill the matrices with test data */
   for (i = 0; i < n2; i++)
   {
-    h_A[i] = rand() / (float)RAND_MAX;
-    h_B[i] = rand() / (float)RAND_MAX;
-    h_C[i] = rand() / (float)RAND_MAX;
+    h_A[i] = rand() / (real)RAND_MAX;
+    h_B[i] = rand() / (real)RAND_MAX;
+    h_C[i] = rand() / (real)RAND_MAX;
     h_C_ref[i] = h_C[i];
   }
 
@@ -181,8 +189,8 @@ static int benchmark_blas(const int N)
     ref_norm += h_C_ref[i] * h_C_ref[i];
   }
 
-  error_norm = (float)sqrt((double)error_norm);
-  ref_norm = (float)sqrt((double)ref_norm);
+  error_norm = (real)sqrt((double)error_norm);
+  ref_norm = (real)sqrt((double)ref_norm);
 
   if (fabs(ref_norm) < 1e-7)
   {
@@ -217,7 +225,7 @@ int main(int argc, char **argv)
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, dev);
 
-  int MAX_N = (int)(sqrt(deviceProp.totalGlobalMem/3.0/sizeof(float)));
+  int MAX_N = (int)(sqrt(deviceProp.totalGlobalMem/3.0/sizeof(real)));
   std::cout<<deviceProp.name<<"    "<<MAX_N<<std::endl;
   if (dev == -1)
   {
