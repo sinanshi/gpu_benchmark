@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <time.h>
 
 /* Includes, cuda */
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <helper_cuda.h>
 
+
+#undef VERIFY 
 /* Host implementation of a simple version of sgemm */
 static void simple_sgemm(int n, float alpha, const float *A, const float *B,
     float beta, float *C)
@@ -147,26 +150,27 @@ static int benchmark_blas(const int N)
     h_C_ref[i] = h_C[i];
   }
 
-
+#ifdef VERIFY
   /* Performs operation using plain C code*/ 
-  std::clock_t c_start = std::clock();
+  clock_t c_start = clock();
   simple_sgemm(N, alpha, h_A, h_B, beta, h_C_ref);
-  std::clock_t c_end = std::clock();
+  clock_t c_end = clock();
+#endif
 
-
-  std::clock_t g_start = std::clock();
+  clock_t g_start = clock();
   gpu_gemm(h_A, h_B, h_C, alpha, beta, N);
-  std::clock_t g_end = std::clock();
-  std::cout << N 
-    << " " 
-    << 1000.0 * (g_end - g_start) / CLOCKS_PER_SEC 
-    << " "
-    << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC 
-    << std::endl;
+  clock_t g_end = clock();
+  double g_time = (double)(g_end - g_start) / CLOCKS_PER_SEC;
+  std::cout << N << " " << g_time << " "<< 2.0 * pow(N, 3) / g_time / 1000 /1000 / 1000;
+
+#ifdef VERIFY
+    std::cout<<" "<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << std::endl;
+#else
+    std::cout << std::endl;
+#endif
 
 
-
-
+#ifdef VERIFY
   error_norm = 0;
   ref_norm = 0;
 
@@ -190,6 +194,7 @@ static int benchmark_blas(const int N)
     printf("simpleCUBLAS test failed.\n");
     exit(EXIT_FAILURE);
   }
+#endif
 
 
   /* Memory clean up */
@@ -221,11 +226,11 @@ int main(int argc, char **argv)
 
   /* Initialize CUBLAS */
   printf("Matmul test: \n");
-  N = 100;
+  N = 1000;
   for(i = 0; i < 20; ++i)
   {
     benchmark_blas(N);
-    N = N + 100;
+    N = N + 1000;
   }
 
 }
