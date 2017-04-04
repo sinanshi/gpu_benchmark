@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 test = ['dgemm', 'sgemm']
-platform =  ['legion_m2070', 'legion_k40',
+platform =  ['legion_m2070', 'legion_k40', 
              'emerald_k20m', 'emerald_k80m']
 sub_position=[211, 212]
 
